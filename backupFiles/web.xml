@@ -1,0 +1,8 @@
+<web-app version="5.0"
+        xmlns="https://jakarta.ee/xml/ns/jakartaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <servlet>
+        <servlet-name>com.bot.spotifyapp.util.BotServletInitializer</servlet-name>
+    </servlet>
+</web-app>
