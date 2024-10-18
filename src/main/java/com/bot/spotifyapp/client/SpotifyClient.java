@@ -47,6 +47,48 @@ public class SpotifyClient {
 
     private static final String BASIC = "Basic ";
 
+    private static final String API = "api";
+
+    private static final String TOKEN = "token";
+
+    private static final String GRANT_TYPE = "grant_type";
+
+    private static final String CLIENT_ID = "client_id";
+
+    private static final String CLIENT_SECRET = "client_secret";
+
+    private static final String CLIENT_CREDENTIALS = "client_credentials";
+
+    private static final String CODE = "code";
+
+    private static final String REDIRECT_URI = "redirect_uri";
+
+    private static final String AUTHORIZATION_CODE = "authorization_code";
+
+    private static final String REFRESH_TOKEN = "refresh_token";
+
+    private static final String V1 = "v1";
+
+    private static final String ME = "me";
+
+    private static final String TRACKS = "tracks";
+
+    private static final String COLON = ":";
+
+    private static final String MARKET = "market";
+
+    private static final String LIMIT = "limit";
+
+    private static final String OFFSET = "offset";
+
+    private static final String URL_FOR_LOG = " URL : ";
+
+    private static final String PLAYLISTS = "playlists";
+
+    private static final String FIELDS = "fields";
+
+
+
     private final Gson gson = new Gson();
 
     private SpotifyClient(String uri) {
@@ -68,15 +110,15 @@ public class SpotifyClient {
 
     public AccessTokenTO getServerToServerAccessToken(String clientId, String clientSecret) throws BotException {
         logger.log(Level.INFO, () -> SPOTIFY_CLIENT + " getAccessToken : start");
-        WebTarget getTokenTarget = tokenTarget.path("api").path("token");
+        WebTarget getTokenTarget = tokenTarget.path(API).path(TOKEN);
         Invocation.Builder builder = getTokenTarget.request(MediaType.APPLICATION_JSON);
         builder.header(CONTENT_TYPE, APPLICATION_FORM_CONTENT_TYPE);
         Form form = new Form();
-        form.param("grant_type", "client_credentials");
-        form.param("client_id", clientId);
-        form.param("client_secret", clientSecret);
+        form.param(GRANT_TYPE, CLIENT_CREDENTIALS);
+        form.param(CLIENT_ID, clientId);
+        form.param(CLIENT_SECRET, clientSecret);
         try (Response response = builder.post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE))) {
-            if (response.getStatus() == 200) {
+            if (response.getStatus() == Constants.STATUS_CODE_OK) {
                 AccessTokenTO accessToken = response.readEntity(AccessTokenTO.class);
                 String token = accessToken.toString();
                 logger.log(Level.INFO, () -> SPOTIFY_CLIENT + token);
@@ -95,41 +137,21 @@ public class SpotifyClient {
         }
     }
 
-    /*
-    public Response authorizeApp(String clientId) {
-        logger.log(Level.INFO, () -> SPOTIFY_CLIENT + " authorizeApp : start");
-        WebTarget getTokenTarget = tokenTarget.path("authorize");
-        String responseType = "code";
-        String redirectUri = "http://localhost:8080/spotifyapp/res/spotify/token";
-        String state = UUID.randomUUID().toString().substring(0, 16);
-        logger.log(Level.INFO, () -> SPOTIFY_CLIENT + " authorizeApp state : " + state);
-        String scope = "user-library-read";
-        getTokenTarget.queryParam("client_id", clientId)
-                .queryParam("response_type", responseType)
-                .queryParam("redirect_uri", redirectUri)
-                .queryParam("state", state)
-                .queryParam("scope", scope);
-        Invocation.Builder builder  = getTokenTarget.request(MediaType.TEXT_HTML);
-        logger.log(Level.INFO, () -> SPOTIFY_CLIENT + " authorizeApp : end");
-        return builder.get();
-    }
-     */
-
     public AccessTokenTO getUserAccessToken(String clientId, String clientSecret, String code) throws BotException {
         logger.log(Level.INFO, () -> SPOTIFY_CLIENT + " getUserAccessToken : start");
-        WebTarget getTokenTarget = tokenTarget.path("api").path("token");
+        WebTarget getTokenTarget = tokenTarget.path(API).path(TOKEN);
         Invocation.Builder builder = getTokenTarget.request(MediaType.APPLICATION_JSON);
-        String authorizationMap = clientId + ":" + clientSecret;
+        String authorizationMap = clientId + COLON + clientSecret;
         byte[] byteAuthorization = authorizationMap.getBytes();
         builder.header(CONTENT_TYPE, APPLICATION_FORM_CONTENT_TYPE);
         builder.header(AUTHORIZATION, BASIC + Base64.getEncoder().encodeToString(byteAuthorization));
-        String redirectUri = "http://localhost:8080/spotifyapp/res/spotify/token";
+        String redirectUri = Constants.AUTHORIZATION_API_REDIRECT_URI;
         Form form = new Form();
-        form.param("grant_type", "authorization_code");
-        form.param("code", code);
-        form.param("redirect_uri", redirectUri);
+        form.param(GRANT_TYPE, AUTHORIZATION_CODE);
+        form.param(CODE, code);
+        form.param(REDIRECT_URI, redirectUri);
         try (Response response = builder.post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE))) {
-            if (response.getStatus() == 200) {
+            if (response.getStatus() == Constants.STATUS_CODE_OK) {
                 AccessTokenTO accessToken = response.readEntity(AccessTokenTO.class);
                 String token = accessToken.toString();
                 logger.log(Level.INFO, () -> SPOTIFY_CLIENT + token);
@@ -150,24 +172,23 @@ public class SpotifyClient {
 
     public AccessTokenTO getUserRefreshToken(String clientId, String clientSecret, String refreshToken) throws BotException {
         logger.log(Level.INFO, () -> SPOTIFY_CLIENT + " getUserRefreshToken : start");
-        WebTarget getTokenTarget = tokenTarget.path("api").path("token");
+        WebTarget getTokenTarget = tokenTarget.path(API).path(TOKEN);
         Invocation.Builder builder = getTokenTarget.request(MediaType.APPLICATION_JSON);
-        String authorizationMap = clientId + ":" + clientSecret;
+        String authorizationMap = clientId + COLON + clientSecret;
         byte[] byteAuthorization = authorizationMap.getBytes();
         builder.header(CONTENT_TYPE, APPLICATION_FORM_CONTENT_TYPE);
         builder.header(AUTHORIZATION, BASIC + Base64.getEncoder().encodeToString(byteAuthorization));
         Form form = new Form();
-        form.param("grant_type", "refresh_token");
-        form.param("refresh_token", refreshToken);
+        form.param(GRANT_TYPE, REFRESH_TOKEN);
+        form.param(REFRESH_TOKEN, refreshToken);
         try (Response response = builder.post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE))) {
-            if (response.getStatus() == 200) {
+            if (response.getStatus() == Constants.STATUS_CODE_OK) {
                 AccessTokenTO accessToken = response.readEntity(AccessTokenTO.class);
                 String token = accessToken.toString();
                 logger.log(Level.INFO, () -> SPOTIFY_CLIENT + token);
                 logger.log(Level.INFO, () -> SPOTIFY_CLIENT + " getUserRefreshToken : end");
                 return accessToken;
             } else {
-                logger.log(Level.ERROR, () -> SPOTIFY_CLIENT + " Bad Response Code : " + response.getStatus());
                 ErrorResponseTO error = response.readEntity(ErrorResponseTO.class);
                 logger.log(Level.ERROR, () -> SPOTIFY_CLIENT + error.toString());
                 logger.log(Level.INFO, () -> SPOTIFY_CLIENT + " getUserRefreshToken : end");
@@ -183,22 +204,21 @@ public class SpotifyClient {
     // max limit : 50
     public TracksTO getMyLikedSongs(String token, String market, Integer limit, Integer offset) throws BotException {
         logger.log(Level.INFO, () -> SPOTIFY_CLIENT + " getMyLikedSongs : start");
-        WebTarget getLikedSongsTarget = target.path("v1").path("me").path("tracks");
+        WebTarget getLikedSongsTarget = target.path(V1).path(ME).path(TRACKS);
         if (market != null && market.length() == 2) {
-            getLikedSongsTarget = getLikedSongsTarget.queryParam("market", market);
+            getLikedSongsTarget = getLikedSongsTarget.queryParam(MARKET, market);
         }
         if (limit != null && limit != 0 && limit <= 50) {
-            getLikedSongsTarget = getLikedSongsTarget.queryParam("limit", limit);
+            getLikedSongsTarget = getLikedSongsTarget.queryParam(LIMIT, limit);
         }
         if (offset != null) {
-            getLikedSongsTarget = getLikedSongsTarget.queryParam("offset", offset);
+            getLikedSongsTarget = getLikedSongsTarget.queryParam(OFFSET, offset);
         }
-        logger.log(Level.INFO, SPOTIFY_CLIENT + " URL : " + getLikedSongsTarget.getUri().toString());
+        logger.log(Level.INFO, SPOTIFY_CLIENT + URL_FOR_LOG + getLikedSongsTarget.getUri().toString());
         Invocation.Builder builder = getLikedSongsTarget.request(MediaType.APPLICATION_JSON);
         builder.header(AUTHORIZATION, BEARER + token);
         try (Response response = builder.get();) {
-            if (response.getStatus() == 200) {
-                logger.log(Level.INFO, () -> SPOTIFY_CLIENT + " getMyLikedSongs Response Code : " + response.getStatus());
+            if (response.getStatus() == Constants.STATUS_CODE_OK) {
                 logger.log(Level.INFO, () -> SPOTIFY_CLIENT + " getMyLikedSongs : end");
                 return response.readEntity(TracksTO.class);
             } else {
@@ -217,7 +237,7 @@ public class SpotifyClient {
     // max tracks: 100
     public AddPlaylistTO addSongsToPlaylist(String token, String playlistId, Integer position, List<String> tracks) throws BotException {
         logger.log(Level.INFO, () -> SPOTIFY_CLIENT + " addSongsToPlaylist : start");
-        WebTarget addSongsToPlaylistTarget = target.path("v1").path("playlists").path(playlistId).path("tracks");
+        WebTarget addSongsToPlaylistTarget = target.path(V1).path(PLAYLISTS).path(playlistId).path(TRACKS);
         Invocation.Builder builder = addSongsToPlaylistTarget.request(MediaType.APPLICATION_JSON);
         builder.header(AUTHORIZATION, BEARER + token);
         builder.header(CONTENT_TYPE, APPLICATION_JSON_CONTENT_TYPE);
@@ -232,8 +252,7 @@ public class SpotifyClient {
             throw new BotException(" The tracks provided are null or empty! ", BotExceptionType.ERROR);
         }
         try (Response response = builder.post(Entity.entity(body, MediaType.APPLICATION_JSON));) {
-            if (response.getStatus() == 201) {
-                logger.log(Level.INFO, () -> SPOTIFY_CLIENT + " addSongsToPlaylist Response Code : " + response.getStatus());
+            if (response.getStatus() == Constants.STATUS_CODE_OK_POST) {
                 logger.log(Level.INFO, () -> SPOTIFY_CLIENT + " addSongsToPlaylist : end");
                 AddPlaylistTO goodResp = response.readEntity(AddPlaylistTO.class);
                 goodResp.setMessage("Songs added to playlist successfully");
@@ -254,25 +273,24 @@ public class SpotifyClient {
     // max limit : 50
     public TracksTO getPlaylistSongs(String token, String playlistId, String market, Integer limit, Integer offset, String fields) throws BotException {
         logger.log(Level.INFO, () -> SPOTIFY_CLIENT + " getPlaylistSongs : start");
-        WebTarget getLikedSongsTarget = target.path("v1").path("playlists").path(playlistId).path("tracks");
+        WebTarget getLikedSongsTarget = target.path(V1).path(PLAYLISTS).path(playlistId).path(TRACKS);
         if (market != null && market.length() == 2) {
-            getLikedSongsTarget = getLikedSongsTarget.queryParam("market", market);
+            getLikedSongsTarget = getLikedSongsTarget.queryParam(MARKET, market);
         }
         if (limit != null && limit != 0 && limit <= 50) {
-            getLikedSongsTarget = getLikedSongsTarget.queryParam("limit", limit);
+            getLikedSongsTarget = getLikedSongsTarget.queryParam(LIMIT, limit);
         }
         if (offset != null) {
-            getLikedSongsTarget = getLikedSongsTarget.queryParam("offset", offset);
+            getLikedSongsTarget = getLikedSongsTarget.queryParam(OFFSET, offset);
         }
         if (fields != null && !fields.isEmpty()) {
-            getLikedSongsTarget = getLikedSongsTarget.queryParam("fields", fields);
+            getLikedSongsTarget = getLikedSongsTarget.queryParam(FIELDS, fields);
         }
-        logger.log(Level.INFO, SPOTIFY_CLIENT + " URL : " + getLikedSongsTarget.getUri().toString());
+        logger.log(Level.INFO, SPOTIFY_CLIENT + URL_FOR_LOG + getLikedSongsTarget.getUri().toString());
         Invocation.Builder builder = getLikedSongsTarget.request(MediaType.APPLICATION_JSON);
         builder.header(AUTHORIZATION, BEARER + token);
         try (Response response = builder.get();) {
-            if (response.getStatus() == 200) {
-                logger.log(Level.INFO, () -> SPOTIFY_CLIENT + " getPlaylistSongs Response Code : " + response.getStatus());
+            if (response.getStatus() == Constants.STATUS_CODE_OK) {
                 logger.log(Level.INFO, () -> SPOTIFY_CLIENT + " getPlaylistSongs : end");
                 return response.readEntity(TracksTO.class);
             } else {

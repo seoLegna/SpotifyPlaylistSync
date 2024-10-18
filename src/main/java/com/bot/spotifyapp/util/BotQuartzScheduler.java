@@ -8,8 +8,6 @@ import org.quartz.impl.StdSchedulerFactory;
 
 public class BotQuartzScheduler {
 
-    private final SchedulerFactory schedulerFactory;
-
     private final Scheduler scheduler;
 
     private final Logger logger = BotLogger.getInstance().getLogger();
@@ -21,7 +19,7 @@ public class BotQuartzScheduler {
     private BotQuartzScheduler() {
         super();
         try {
-            this.schedulerFactory = new StdSchedulerFactory(Constants.CONFIG_HOME + "quartz.properties");
+            SchedulerFactory schedulerFactory = new StdSchedulerFactory(Constants.CONFIG_HOME + "quartz.properties");
             this.scheduler = schedulerFactory.getScheduler();
         } catch (SchedulerException e) {
             logger.log(Level.ERROR, () -> BOT_QUARTZ_SCHEDULER + SCHEDULER_EXCEPTION, e);

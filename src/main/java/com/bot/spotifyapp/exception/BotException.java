@@ -2,6 +2,7 @@ package com.bot.spotifyapp.exception;
 
 import com.bot.spotifyapp.to.ErrorResponseTO;
 import com.bot.spotifyapp.type.BotExceptionType;
+import com.bot.spotifyapp.util.Constants;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -41,7 +42,7 @@ public class BotException extends RuntimeException {
     private void setErrorIfError() {
         if (this.type == BotExceptionType.ERROR) {
             ErrorResponseTO customError = new ErrorResponseTO();
-            customError.setStatus(800);
+            customError.setStatus(Constants.STATUS_CODE_BAD_REQUEST);
             customError.setMessage(this.message);
             this.error = customError;
         }

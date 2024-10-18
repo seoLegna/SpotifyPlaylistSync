@@ -35,21 +35,6 @@ public class SpotifyResource {
 
     private final SpotifyServiceIntf spotifyService = SpotifyServiceImpl.getInstance();
 
-    /*
-    @GET
-    @Path("/token")
-    @Produces(MediaType.APPLICATION_JSON)
-    public void getAccessToken(@Suspended final AsyncResponse response) {
-
-        executor.execute(() -> {
-            logger.log(Level.INFO, () -> SPOTIFY_RESOURCE + " getAccessToken : start");
-            AccessTokenTO accessTokenTO = spotifyService.getAccessToken();
-            response.resume(accessTokenTO);
-            logger.log(Level.INFO, () -> SPOTIFY_RESOURCE + " getAccessToken : end");
-        });
-    }
-    */
-
     @GET
     @Path("/authorize")
     @Produces(MediaType.TEXT_HTML)
@@ -62,12 +47,14 @@ public class SpotifyResource {
                 URI resUri = spotifyService.authorizeApp();
                 response.resume(Response.seeOther(resUri).build());
             } catch (BotException e) {
-                response.resume(e.getError());
+                logger.log(Level.ERROR, () -> SPOTIFY_RESOURCE + e.getError());
+                response.resume(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getError()).build());
             } catch (Exception e) {
                 ErrorResponseTO error = new ErrorResponseTO();
-                error.setStatus(801);
+                error.setStatus(Constants.CUSTOM_STATUS_CODE_ERROR);
                 error.setMessage(e.getMessage());
-                response.resume(error);
+                logger.log(Level.ERROR, () -> SPOTIFY_RESOURCE + error);
+                response.resume(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(error).build());
             }
             logger.log(Level.INFO, () -> SPOTIFY_RESOURCE + " authorizeApp : end");
         });
@@ -88,13 +75,15 @@ public class SpotifyResource {
                 ValidateProperties.arePropertiesValidForGetUserAccessToken(code, state, error);
                 AccessTokenTO accessTokenTO = spotifyService.getUserAccessToken(code);
                 response.resume(accessTokenTO);
-            }  catch (BotException e) {
-                response.resume(e.getError());
+            } catch (BotException e) {
+                logger.log(Level.ERROR, () -> SPOTIFY_RESOURCE + e.getError());
+                response.resume(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getError()).build());
             } catch (Exception e) {
-                ErrorResponseTO err = new ErrorResponseTO();
-                err.setStatus(801);
-                err.setMessage(e.getMessage());
-                response.resume(err);
+                ErrorResponseTO respError = new ErrorResponseTO();
+                respError.setStatus(Constants.CUSTOM_STATUS_CODE_ERROR);
+                respError.setMessage(e.getMessage());
+                logger.log(Level.ERROR, () -> SPOTIFY_RESOURCE + respError);
+                response.resume(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(respError).build());
             }
             logger.log(Level.INFO, () -> SPOTIFY_RESOURCE + " getUserAccessToken : end");
         });
@@ -117,91 +106,18 @@ public class SpotifyResource {
                 TracksTO tracksTO = spotifyService.getMyLikedSongs(market, limit, offset);
                 response.resume(tracksTO);
             } catch (BotException e) {
-                response.resume(e.getError());
+                logger.log(Level.ERROR, () -> SPOTIFY_RESOURCE + e.getError());
+                response.resume(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getError()).build());
             } catch (Exception e) {
                 ErrorResponseTO error = new ErrorResponseTO();
-                error.setStatus(801);
+                error.setStatus(Constants.CUSTOM_STATUS_CODE_ERROR);
                 error.setMessage(e.getMessage());
-                response.resume(error);
+                logger.log(Level.ERROR, () -> SPOTIFY_RESOURCE + error);
+                response.resume(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(error).build());
             }
             logger.log(Level.INFO, () -> SPOTIFY_RESOURCE + " getAccessToken : end");
         });
     }
-
-    /*
-    @GET
-    @Path("/refresh-token")
-    @Produces(MediaType.APPLICATION_JSON)
-    public void getRefreshToken(@Suspended final AsyncResponse response) {
-
-        executor.execute(() -> {
-            ThreadContext.put(Constants.UUID, UUID.randomUUID().toString());
-            logger.log(Level.INFO, () -> SPOTIFY_RESOURCE + " getRefreshToken : start");
-            try {
-                AccessTokenTO refreshToken = spotifyService.getUserRefreshToken();
-                response.resume(refreshToken);
-            } catch (BotException e) {
-                response.resume(e.getError());
-            } catch (Exception e) {
-                ErrorResponseTO error = new ErrorResponseTO();
-                error.setStatus(801);
-                error.setMessage(e.getMessage());
-                response.resume(error);
-            }
-            logger.log(Level.INFO, () -> SPOTIFY_RESOURCE + " getRefreshToken : end");
-        });
-    }
-
-    @GET
-    @Path("/refresh-token-scheduler")
-    @Produces(MediaType.APPLICATION_JSON)
-    public void getRefreshTokenForScheduler(@Suspended final AsyncResponse response) {
-
-        executor.execute(() -> {
-            ThreadContext.put(Constants.UUID, UUID.randomUUID().toString());
-            logger.log(Level.INFO, () -> SPOTIFY_RESOURCE + " getRefreshToken : start");
-            try {
-                AccessTokenTO refreshToken = spotifyService.getRefreshTokenForScheduler();
-                response.resume(refreshToken);
-            } catch (BotException e) {
-                response.resume(e.getError());
-            } catch (Exception e) {
-                ErrorResponseTO error = new ErrorResponseTO();
-                error.setStatus(801);
-                error.setMessage(e.getMessage());
-                response.resume(error);
-            }
-            logger.log(Level.INFO, () -> SPOTIFY_RESOURCE + " getRefreshToken : end");
-        });
-    }
-     */
-
-    /*
-
-    @GET
-    @Path("/uris")
-    @Produces(MediaType.APPLICATION_JSON)
-    public void getUris(@Suspended final AsyncResponse response) {
-
-        executor.execute(() -> {
-            ThreadContext.put(Constants.UUID, UUID.randomUUID().toString());
-            logger.log(Level.INFO, () -> SPOTIFY_RESOURCE + " getUris : start");
-            try {
-                TempTO songs = spotifyService.getListOfLikedSongUris();
-                response.resume(songs);
-            } catch (BotException e) {
-                response.resume(e.getError());
-            } catch (Exception e) {
-                ErrorResponseTO error = new ErrorResponseTO();
-                error.setStatus(801);
-                error.setMessage(e.getMessage());
-                response.resume(error);
-            }
-            logger.log(Level.INFO, () -> SPOTIFY_RESOURCE + " getUris : end");
-        });
-    }
-
-     */
 
     @POST
     @Path("add-tracks-to-playlist")
@@ -216,12 +132,14 @@ public class SpotifyResource {
                 AddPlaylistTO resp = spotifyService.addSongsToPlaylist(playlist.getPlaylistId(), playlist.getPosition(), playlist.getUris());
                 response.resume(resp);
             } catch (BotException e) {
-                response.resume(e.getError());
+                logger.log(Level.ERROR, () -> SPOTIFY_RESOURCE + e.getError());
+                response.resume(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getError()).build());
             } catch (Exception e) {
                 ErrorResponseTO error = new ErrorResponseTO();
-                error.setStatus(801);
+                error.setStatus(Constants.CUSTOM_STATUS_CODE_ERROR);
                 error.setMessage(e.getMessage());
-                response.resume(error);
+                logger.log(Level.ERROR, () -> SPOTIFY_RESOURCE + error);
+                response.resume(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(error).build());
             }
             logger.log(Level.INFO, () -> SPOTIFY_RESOURCE + " addTracksToPlaylist : end");
         });
@@ -240,12 +158,14 @@ public class SpotifyResource {
                 AddPlaylistTO resp = spotifyService.moveAllLikedSongsToPlaylist(playlist.getPlaylistId());
                 response.resume(resp);
             } catch (BotException e) {
-                response.resume(e.getError());
+                logger.log(Level.ERROR, () -> SPOTIFY_RESOURCE + e.getError());
+                response.resume(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getError()).build());
             } catch (Exception e) {
                 ErrorResponseTO error = new ErrorResponseTO();
-                error.setStatus(801);
+                error.setStatus(Constants.CUSTOM_STATUS_CODE_ERROR);
                 error.setMessage(e.getMessage());
-                response.resume(error);
+                logger.log(Level.ERROR, () -> SPOTIFY_RESOURCE + error);
+                response.resume(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(error).build());
             }
             logger.log(Level.INFO, () -> SPOTIFY_RESOURCE + " moveLikedSongs : end");
         });
@@ -268,12 +188,14 @@ public class SpotifyResource {
                 TracksTO tracksTO = spotifyService.getPlaylistSongs(playlistId, market, limit, offset, null);
                 response.resume(tracksTO);
             } catch (BotException e) {
-                response.resume(e.getError());
+                logger.log(Level.ERROR, () -> SPOTIFY_RESOURCE + e.getError());
+                response.resume(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getError()).build());
             } catch (Exception e) {
                 ErrorResponseTO error = new ErrorResponseTO();
-                error.setStatus(801);
+                error.setStatus(Constants.CUSTOM_STATUS_CODE_ERROR);
                 error.setMessage(e.getMessage());
-                response.resume(error);
+                logger.log(Level.ERROR, () -> SPOTIFY_RESOURCE + error);
+                response.resume(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(error).build());
             }
             logger.log(Level.INFO, () -> SPOTIFY_RESOURCE + " getPlaylistSongs : end");
         });
@@ -292,12 +214,14 @@ public class SpotifyResource {
                 AddPlaylistTO resp = spotifyService.syncPlaylistWithLikedSongs(playlistId);
                 response.resume(resp);
             } catch (BotException e) {
-                response.resume(e.getError());
+                logger.log(Level.ERROR, () -> SPOTIFY_RESOURCE + e.getError());
+                response.resume(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getError()).build());
             } catch (Exception e) {
                 ErrorResponseTO error = new ErrorResponseTO();
-                error.setStatus(801);
+                error.setStatus(Constants.CUSTOM_STATUS_CODE_ERROR);
                 error.setMessage(e.getMessage());
-                response.resume(error);
+                logger.log(Level.ERROR, () -> SPOTIFY_RESOURCE + error);
+                response.resume(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(error).build());
             }
             logger.log(Level.INFO, () -> SPOTIFY_RESOURCE + " syncWithLiked : end");
         });

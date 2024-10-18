@@ -10,7 +10,7 @@ import org.apache.logging.log4j.ThreadContext;
 @WebListener
 public class BotContextListener implements ServletContextListener {
 
-    private static final String BOT_CONTEXT_LISTENER = "BOT_CONTEXT_LISTENER";
+    private static final String BOT_CONTEXT_LISTENER = " BOT_CONTEXT_LISTENER ";
 
     private final Logger logger = BotLogger.getInstance().getLogger();
 

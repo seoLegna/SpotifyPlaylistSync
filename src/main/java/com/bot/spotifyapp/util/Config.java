@@ -43,7 +43,7 @@ public class Config {
             logger.log(Level.INFO, () -> CONFIG + " Property : " + key + " Not Found!");
             throw new BotException("No Config Value Found For Key Provided");
         }
-        logger.log(Level.INFO, () -> CONFIG + " Property : " + key + ", Value : " + value);
+        logger.log(Level.INFO, () -> CONFIG + " Property : " + key);
         return value;
     }
 

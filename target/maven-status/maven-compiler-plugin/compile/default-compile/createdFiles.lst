@@ -26,7 +26,6 @@ com/bot/spotifyapp/to/AlbumTO.class
 com/bot/spotifyapp/to/ExternalIdsTO.class
 com/bot/spotifyapp/util/BotRefreshTokenQuartzJob.class
 com/bot/spotifyapp/util/CacheMap$1.class
-com/bot/spotifyapp/webservice/StudentResource.class
 com/bot/spotifyapp/util/BotThreadPoolExecutor$1.class
 com/bot/spotifyapp/util/BotQuartzScheduler.class
 com/bot/spotifyapp/util/CacheMap$InstanceHolder.class

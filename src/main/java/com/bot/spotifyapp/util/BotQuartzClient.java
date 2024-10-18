@@ -6,6 +6,18 @@ public class BotQuartzClient {
 
     private final BotQuartzScheduler scheduler = BotQuartzScheduler.getInstance();
 
+    private static final String REFRESH_JOB = "refreshJob";
+
+    private static final String REFRESH_GROUP = "refreshGroup";
+
+    private static final String REFRESH_TRIGGER = "refreshTrigger";
+
+    private static final String SYNC_JOB = "syncJob";
+
+    private static final String SYNC_GROUP = "syncGroup";
+
+    private static final String SYNC_TRIGGER = "syncTrigger";
+
     private BotQuartzClient() {
         super();
     }
@@ -21,10 +33,10 @@ public class BotQuartzClient {
 
     public void startRefreshTokenJob() {
         JobDetail refreshJob = JobBuilder.newJob(BotRefreshTokenQuartzJob.class)
-                .withIdentity("refreshJob", "refreshGroup")
+                .withIdentity(REFRESH_JOB, REFRESH_GROUP)
                 .build();
         Trigger refreshTrigger = TriggerBuilder.newTrigger()
-                .withIdentity("refreshTrigger", "refreshGroup")
+                .withIdentity(REFRESH_TRIGGER, REFRESH_GROUP)
                 .startNow()
                 .withSchedule(SimpleScheduleBuilder.simpleSchedule()
                         .withIntervalInMinutes(50)
@@ -35,10 +47,10 @@ public class BotQuartzClient {
 
     public void startLikedSongsSyncJob() {
         JobDetail syncJob = JobBuilder.newJob(BotSyncLikedSongsQuartzJob.class)
-                .withIdentity("syncJob", "syncGroup")
+                .withIdentity(SYNC_JOB, SYNC_GROUP)
                 .build();
         Trigger syncTrigger = TriggerBuilder.newTrigger()
-                .withIdentity("syncTrigger", "syncGroup")
+                .withIdentity(SYNC_TRIGGER, SYNC_GROUP)
                 .startNow()
                 .withSchedule(SimpleScheduleBuilder.simpleSchedule()
                         .withIntervalInSeconds(5)

@@ -5,7 +5,7 @@
                    https://logging.apache.org/xml/ns
                    https://logging.apache.org/xml/ns/log4j-config-2.xsd">
     <Appenders>
-        <File name="DEBUG_FILE" fileName="/Users/seolegna/MacDocuments/JerseyProjects/spotifyapp/logs/spotifyapp.log">
+        <File name="DEBUG_FILE" fileName="<<Path to your log file>>/spotifyapp.log">
             <PatternLayout pattern="[%-5level] [%X{uuid}] %d{yyyy-MM-dd HH:mm:ss} %p %m%n"/>
         </File>
     </Appenders>

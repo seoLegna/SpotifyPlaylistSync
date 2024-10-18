@@ -136,19 +136,6 @@ public class SpotifyServiceImpl implements SpotifyServiceIntf {
         return null;
     }
 
-    /*
-
-    @Override
-    public AccessTokenTO getRefreshTokenForScheduler() {
-        logger.log(Level.INFO, () -> SPOTIFY_SERVICE_IMPL + " getRefreshTokenForScheduler : start");
-        AccessTokenTO at = new AccessTokenTO();
-        at.setRefresh_token(this.refreshToken);
-        logger.log(Level.INFO, () -> SPOTIFY_SERVICE_IMPL + " getRefreshTokenForScheduler : end");
-        return at;
-    }
-
-     */
-
     @Override
     public AddPlaylistTO moveAllLikedSongsToPlaylist(String playlistId) throws BotException {
         logger.log(Level.INFO, () -> SPOTIFY_SERVICE_IMPL + " moveAllLikedSongsToPlaylist : start");
