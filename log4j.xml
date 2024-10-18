@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration xmlns="https://logging.apache.org/xml/ns"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="
+                   https://logging.apache.org/xml/ns
+                   https://logging.apache.org/xml/ns/log4j-config-2.xsd">
+    <Appenders>
+        <File name="DEBUG_FILE" fileName="<<Path to your log file>>/spotifyapp.log">
+            <PatternLayout pattern="[%-5level] [%X{uuid}] %d{yyyy-MM-dd HH:mm:ss} %p %m%n"/>
+        </File>
+    </Appenders>
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="DEBUG_FILE"/>
+        </Root>
+    </Loggers>
+</Configuration>
