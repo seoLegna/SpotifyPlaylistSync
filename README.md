@@ -22,11 +22,11 @@ You can follow the following [guide from spotify](https://developer.spotify.com/
 to create a dev app. 
 
 While creating the app you will come across a field in the app called **Redirect URI**.
-Please ensure that the value of this field is set to *<<path-to-your-container>>/res/spotify/token* this value 
+Please ensure that the value of this field is set to *!!path-to-your-container!!/res/spotify/token* this value 
 (if you plan on hosting this app locally, which I would suggest you do).
 This will ensure that when try to authorize the app it will call this API after succeeding or failing the authorization process.
 
-Replace the <<path-to-your-container>> placeholder with the path of your resource.
+Replace the !!path-to-your-container!! placeholder with the path of your resource.
 I was using Tomcat 10.1.28 for testing so for me it was: *http://localhost:8080/spotifyapp/res/spotify/token*
 
 ## Setting Up The App
@@ -95,15 +95,15 @@ The app contains the following APIs:
 This is the API that you need to call first after your app has started.
 It authorizes this app with your account.
 
-I would suggest you call this API from a browser to get the best results.
+*I would suggest you call this API from a browser to get the best results.*
 
-Request:
+    Request:
 
-None
+        None
 
-Response:
+    Response:
 
-Redirect to Spotify Authentication Portal
+        Redirect to Spotify Authentication Portal
 
 ### GET my-liked-songs
 
